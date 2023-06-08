@@ -2,7 +2,10 @@ LIBRARY IEEE;
 USE IEEE.std_logic_1164.all;
 USE IEEE.numeric_std.all;
 use IEEE.STD_logic_unsigned.all;
+
 --library PWM_pkg;
+--use PWM_pkg.PWM_package.all;
+
 use work.PWM_package.all;
 
 entity PWM is
@@ -14,9 +17,9 @@ entity PWM is
 		PWM_L1: out std_logic;
 		PWM_H2: out std_logic;
 		PWM_L2:out std_logic;
-		desfase:in integer range 0 to 278;
-		d1: in integer range 0 to 279;
-		d2:in integer range 0 to 279
+		desfase:in integer range 0 to 540;
+		d1: in integer range 0 to 556;
+		d2:in integer range 0 to 556
 
 		);
 end PWM;
@@ -81,9 +84,9 @@ begin
 		d2_sig<=d2_act;
 		case est_act is
 			when idle =>
-				PWM_H1_sig<='0';
+				PWM_H1_sig<='1';
 				PWM_L1_sig<='0';
-				PWM_H2_sig<='0';
+				PWM_H2_sig<='1';
 				PWM_L2_sig<='0';
 				d1_sig<=duty_min;
 				d2_sig<=duty_min;
@@ -278,116 +281,46 @@ begin
 
 					if countactual2 < desfase then --desfase
 						PWM_H2_sig<='1';
+						PWM_L2_sig<='0';
+					elsif countactual2 >= desfase and countactual2 < desfase + deadtime1_buckboost then --deadtime1
+						PWM_H2_sig<='0';
 						PWM_L2_sig<='0';					
-					
-					elsif countactual2 >= desfase and countactual2 < desfase + d2_Act then -- duty 2
+					elsif countactual2 >= desfase +deadtime1_buckboost and countactual2 < desfase + deadtime1_buckboost + d2_act then -- duty 2
 						PWM_H2_sig<='0';
 						PWM_L2_sig<='1';
-					elsif countactual2 >= desfase + d2_Act  and countactual1 < d2_act + desfase + deadtime2_buckboost then -- deadtime
+					elsif countactual2 >= desfase + deadtime1_buckboost + d2_Act  and countactual2 < d2_act + deadtime1_buckboost + desfase + deadtime2_buckboost then -- deadtime2
 						PWM_H2_sig<='0';
 						PWM_L2_sig<='0';					
-					elsif countactual2 >= desfase + deadtime2_buckboost +d2_Act and countactual2 < period - deadtime1_buckboost then --(1-duty) 
+					elsif countactual2 >= desfase +deadtime1_buckboost + deadtime2_buckboost +d2_Act and countactual2 < period then --(1-duty) 
 						PWM_H2_sig<='1';
 						PWM_L2_sig<='0';					
-					elsif countactual2 >= period - deadtime1_buckboost and countactual1 < period then--deadtime
-						PWM_H2_sig<='0';
-						PWM_L2_sig<='0';					
+--					elsif countactual2 >= period then--deadtime
+--						PWM_H2_sig<='0';
+--						PWM_L2_sig<='0';	
 					else --
-						PWM_H2_sig<='0';
+						PWM_H2_sig<='1';
 						PWM_L2_sig<='0';
 						countsig2<=0;
 					end if;
-			
+					if (d2+desfase>=period) then
+							d2_sig <= period-desfase-deadtime1_buckboost-deadtime2_buckboost-1; -- to avoid increasing duty beyond period and there is a delay active
+					else
 						if (d2_act >= d2) then
 							d2_sig <= d2;
 						else
 							d2_sig <= d2_act+1;
 						end if;
+					end if;
+						
 						
 						if d1_act >= d1 then
 							d1_sig <= d1;
 						else 
 							d1_sig <= d1_Act+1;
 						end if;
-					
---				PWM_H1_sig<='1';
---				PWM_L1_sig<='0';
---				countsig2<=countactual2+1;
---				if (countactual2 < desfase) then
---					PWM_H2_sig<='1';
---					PWM_L2_sig<='0';
---
---				elsif countactual2 >desfase and countactual2 < desfase + deadtime2_buckboost then
---					PWM_H2_sig<='0';
---					PWM_L2_sig<='0';
---				elsif countactual2 >desfase+deadtime2_buckboost and countactual2 < desfase + deadtime2_buckboost + d2_Act then
---					PWM_H2_sig<='0';
---					PWM_L2_sig<='1';
---				else
---					PWM_H2_sig<='0';
---					PWM_L2_sig<='0';
---					if countactual2>=period then
---					countsig2<=0;
---					end if;
---				end if;
---
---			if (countactual1 >= d1_act) then
---				PWM_H1_sig<='0';
---				PWM_L1_sig<='0';
---				if (countactual1 >= d1_act + deadtime1_buckboost) then
---					est_sig <= buckboost2;
---					countsig1 <= countactual1+1;
---				else
---				countsig1 <= countactual1+1;
---				end if;
---			else
---			countsig1 <= countactual1 +1;
---			end if;
---
---
---				when buckboost2 =>
---				PWM_H1_sig<='0';
---				PWM_L1_sig<='1';
---
---				countsig2<=countactual2+1;
---				if (countactual2 <= desfase) then
---					PWM_H2_sig<='1';
---					PWM_L2_sig<='0';
---
---				elsif countactual2>desfase and countactual2 <= desfase + deadtime2_buckboost then
---					PWM_H2_sig<='0';
---					PWM_L2_sig<='0';
---				elsif countactual2>desfase + deadtime2_buckboost and countactual2 <= desfase + deadtime2_buckboost + d2_act then
---					PWM_H2_sig<='0';
---					PWM_L2_sig<='1';
---				else
---					PWM_H2_sig<='0';
---					PWM_L2_sig<='0';
---
---				if countactual2>=period then
---					countsig2<=0;
---					end if;
---			end if;
---				if (countactual1 >= period-deadtime2_boost) then
---					PWM_H1_sig<='0';
---					PWM_L1_sig<='0';
---
---					if (countactual1 >= period) then
---						est_sig <= buckboost1;
---						countsig1 <= 0;
---			
---						if (d2_act >= d2) then
---						d2_sig <= d2;
---						else
---						d2_sig <= d2_act+1;
---						end if;
---					else
---					countsig1 <= countactual1+1;
---					end if;
---				else
---				countsig1 <= countactual1 +1;
---				end if;
+						
 
+				
 
 
 		end case;

@@ -4,7 +4,7 @@ USE IEEE.numeric_std.all;
 use IEEE.STD_logic_unsigned.all;
 --library PWM_pkg;
 --use PWM_pkg.PWM_package.all;
-library work;
+--library work;
 use work.PWM_package.all;
 
  entity incdec_duty is
@@ -16,10 +16,10 @@ use work.PWM_package.all;
    delay_incdec_btn: in std_logic; -- when pressed, increments/decrements delay
 
 	d1d2:in std_logic;
-	delay_out: out integer range 0 to 278; -- outputs delay value, sends it to PWM
+	delay_out: out integer range 0 to 600; -- outputs delay value, sends it to PWM
 	sel: in std_logic_vector(1 downto 0);
-	d1: out integer range 0 to 279;
-   d2: out integer range 0 to 279;
+	d1: out integer range 0 to 600;
+   d2: out integer range 0 to 600;
 	d1d2_led: out std_logic
  );
  end incdec_Duty;
@@ -28,9 +28,9 @@ architecture behavior of incdec_duty is
 
 signal count_init_act, count_init_sig: std_logic := '0';
 signal flag_inc: integer:=0;
-signal d1_act,d1_sig,d2_act,d2_sig:integer range 0 to 278 ; -- act created to read in the combinatorial section. sig  is for the sequential
+signal d1_act,d1_sig,d2_act,d2_sig:integer range 0 to 600 ; -- act created to read in the combinatorial section. sig  is for the sequential
 signal delay_prev: std_logic_vector (1 downto 0):="00";
-signal delay_act, delay_sig: integer range 0 to 278:=30;
+signal delay_act, delay_sig: integer range 0 to 540:=0;
 signal incdec_prev: std_logic_vector(1 downto 0):="00";
 signal mode_act,mode_sig: mode:= idle;
 
@@ -147,7 +147,7 @@ case mode_act is
         --incr(duty_max,duty_min,d1_sig,d1_act,5);
 
   		  if (d1_act >= duty_max) then --IF 3
-  				d1_sig <= duty_min;
+  				d1_sig <= duty_max;--d1_sig <= duty_min;
   			else --ELSE 3
   				d1_sig<=d1_act+valor;
   			end if;-- end if 3--incr(duty_max,duty_min,d2_sig,d2_act,5);
@@ -155,7 +155,7 @@ case mode_act is
   	 else
         --decr(duty_max,duty_min,d1_sig,d1_act,5);
   			if (d1_act <= duty_min) then --if 4
-  				d1_sig <= duty_max;
+  				d1_sig <= duty_min;--d1_sig <= duty_max;
   			else --else 4
   				d1_sig<=d1_act-valor;--decr(duty_max,duty_min,d2_sig,d2_act,5);
   			end if;--end if 4
@@ -192,7 +192,7 @@ case mode_act is
       if (incdec ='1') then --This means i want to increment value
         --incr(duty_max,duty_min,d2_sig,d2_act,5);
         if (d2_act >= duty_max) then --IF 3
-  				d2_sig <= duty_min;
+  				d2_sig <= duty_max;--d2_sig <= duty_min;
   			else --ELSE 3
   				d2_sig<=d2_act+valor;
   			end if;-- end if 3--incr(duty_max,duty_min,d2_sig,d2_act,5);
@@ -200,7 +200,7 @@ case mode_act is
   	   else -- else i decrement
         --decr(duty_max,duty_min,d2_sig,d2_act,5);
   		    if (d2_act <= duty_min) then --if 4
-  				    d2_sig <= duty_max;
+  				    d2_sig <= duty_min;--d2_sig <= duty_max;
   			  else --else 4
   				     d2_sig<=d2_act-valor;--decr(duty_max,duty_min,d2_sig,d2_act,5);
   			  end if;--end if 4
@@ -238,7 +238,7 @@ case mode_act is
 						if (incdec ='1') then --IF 2 --This means i want to increment value
 
 								if (d2_act >= duty_max) then --IF 3
-									d2_sig <= duty_min;
+									d2_sig <= duty_max;--d2_sig <= duty_min;
 								else --ELSE 3
 									d2_sig<=d2_act+valor;
 								end if;-- end if 3--incr(duty_max,duty_min,d2_sig,d2_act,5);
@@ -246,7 +246,7 @@ case mode_act is
 						else--else 2
 					
 								if (d2_act <= duty_min) then --if 4
-									d2_sig <= duty_max;
+									d2_sig <= duty_min;--d2_sig <= duty_max;
 								else --else 4
 									d2_sig<=d2_act-valor;--decr(duty_max,duty_min,d2_sig,d2_act,5);
 								end if;--end if 4
@@ -308,20 +308,19 @@ end process;
 
 delay_process: process(delay_act,sel,delay_prev,incdec,d2_act)
 BEGIN
-if sel ="11" then
+if sel ="11" then -- this means i selected buck boost mode
 if (delay_prev="01") then
   if (incdec ='1') then --This means i want to increment value
-			 if (delay_act >= period-d2_act-deadtime1_buckboost-deadtime2_buckboost) then
-				delay_sig <= delay_min;
+			 if (delay_act >= period-d2_act-deadtime1_buckboost-deadtime2_buckboost-valor) then
+				delay_sig <= period-d2_act-deadtime1_buckboost-deadtime2_buckboost;--delay_sig <= delay_min;
 			else
 				delay_sig<=delay_act+valor;
 			end if;
 	 --incr(delay_max,delay_min,delay_sig,delay_act,1);
   else -- i want to decrement value
         if (delay_act <= delay_min+valor) then --if 4
-				delay_sig <= period-d2_act-deadtime1_buckboost-deadtime2_buckboost;
+				delay_sig <= delay_min;--delay_sig <= period-d2_act-deadtime1_buckboost-deadtime2_buckboost;
 			else --else 4
-				
 				delay_sig<=delay_act-valor;--decr(duty_max,duty_min,d2_sig,d2_act,5);
 				
 			end if;--end if 4	--decr(delay_max,delay_min,delay_sig,delay_act,1);

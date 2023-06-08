@@ -35,9 +35,9 @@ end PWMgeneration_top;
 
 architecture RTL of PWMgeneration_top is 
 
-signal d1 : integer range 0 to 279;
-signal d2 : integer range 0 to 279;
-signal desfase : integer range 0 to 260;
+signal d1 : integer range 0 to 556;
+signal d2 : integer range 0 to 556;
+signal desfase : integer range 0 to 520;
 signal reset_btn_inv : std_logic;
 signal set_btn_inv : std_logic;
 signal inc_not,dec_not : std_logic;
@@ -53,9 +53,9 @@ port(
 		PWM_L1: out std_logic;
 		PWM_H2: out std_logic;
 		PWM_L2:out std_logic;
-		desfase:in integer range 0 to 279;
-		d1: integer range 0 to 279;
-		d2:integer range 0 to 279
+		desfase:in integer range 0 to 556;
+		d1: integer range 0 to 556;
+		d2:integer range 0 to 556
 );
 end component;
 
@@ -80,13 +80,13 @@ component incdec_duty
    incdec: in std_logic; -- if '1' increments, if '0' decrements
    incdec_btn: in std_logic; -- button. when pressed, increments/decrements depending on incdec
    delay_incdec_btn: in std_logic; -- when pressed, increments/decrements delay
-   delay_out: out integer range 0 to 260; -- outputs delay value, sends it to PWM
+   delay_out: out integer range 0 to 520; -- outputs delay value, sends it to PWM
 	d1d2:in std_logic;
 	clk: in std_logic;
 	reset: in std_logic;
 	sel: in std_logic_vector(1 downto 0);
-	d1: out integer range 0 to 279;
-   d2: out integer range 0 to 279;
+	d1: out integer range 0 to 556;
+   d2: out integer range 0 to 556;
 	d1d2_led: out std_logic
  );
 end component;

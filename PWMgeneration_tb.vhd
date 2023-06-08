@@ -86,17 +86,17 @@ architecture TestBench of PWMgeneration_tb is
     wait for 20 ns;
  END PROCESS;
  
- p_inc_dec: process
-  BEGIN
-    incdec <= '0', '1' after 20300 us,'0' after 49500 us, '1' after 75000 us, '0' after 99000 us, '1' after 130000 us, '0' after 149 ms, '0' after 175 ms;
-   wait for 2000000 us;
- END PROCESS;
+ --p_inc_dec: process
+--  BEGIN
+    incdec <= '0', '1' after 20300 us,'0' after 49500 us, '1' after 75000 us, '0' after 99000 us, '1' after 130000 us, '0' after 149 ms, '0' after 175 ms,'1' after 200 ms;
+   --wait for 2000000 us;
+ --END PROCESS;
 
 p_incdecbtn: process
 begin 
 incdec_btn <= '0', '1' after 10 ms,'0' after 10500 us, '1' after 20 ms;
 wait for 30 ms;
- end process;
+end process;
 
 p_delay:process
 begin 
